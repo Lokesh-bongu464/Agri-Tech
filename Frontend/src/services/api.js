@@ -17,9 +17,15 @@ let setAppErrorGlobal = (errorMessage) => {};
 let requestInterceptorId = null;
 let responseInterceptorId = null;
 
+/**
+ * Initialize Axios interceptors.
+ * @param {function} setLoadingFn - Function to set loading state.
+ * @param {function} setErrorFn - Function to set global error state.
+ */
 export const initializeApiInterceptors = (setLoadingFn, setErrorFn) => {
   setAppErrorGlobal = setErrorFn;
 
+  // Eject existing interceptors if any
   if (requestInterceptorId !== null) {
     api.interceptors.request.eject(requestInterceptorId);
   }
@@ -27,6 +33,7 @@ export const initializeApiInterceptors = (setLoadingFn, setErrorFn) => {
     api.interceptors.response.eject(responseInterceptorId);
   }
 
+  // Request interceptor to add auth header and clear errors on new requests
   requestInterceptorId = api.interceptors.request.use(
     (config) => {
       setAppErrorGlobal(null);
@@ -36,7 +43,7 @@ export const initializeApiInterceptors = (setLoadingFn, setErrorFn) => {
       }
       console.log(
         "Axios Request URL (from interceptor):",
-        config.baseURL + config.url
+        `${config.baseURL}${config.url}`
       );
       return config;
     },
@@ -46,6 +53,7 @@ export const initializeApiInterceptors = (setLoadingFn, setErrorFn) => {
     }
   );
 
+  // Response interceptor to handle errors globally
   responseInterceptorId = api.interceptors.response.use(
     (response) => {
       setAppErrorGlobal(null);
@@ -62,12 +70,21 @@ export const initializeApiInterceptors = (setLoadingFn, setErrorFn) => {
         error.response || error
       );
 
+      // Handle 401 Unauthorized or 403 Forbidden: force logout
       if (
         error.response &&
         (error.response.status === 401 || error.response.status === 403)
       ) {
-        // Optional: trigger logout action here if token is invalid/expired
+        // Clear stored auth info
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("user");
+
+        // Optionally clear more app-level auth state here by calling auth context logout if available
+
+        // Redirect user to login page
+        window.location.href = "/ulogin"; // Adjust to your login route
       }
+
       return Promise.reject(error);
     }
   );

@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -11,11 +12,15 @@ export const AuthProvider = ({ children }) => {
   const [globalError, setGlobalError] = useState(null);
   const navigate = useNavigate();
 
+  // In-memory flag to track whether server was restarted
+  const SESSION_FLAG = "session_active";
+
   useEffect(() => {
-    // Using localStorage (persist after refresh)
     const storedToken = localStorage.getItem("jwtToken");
     const storedUser = localStorage.getItem("user");
-    if (storedToken && storedUser) {
+    const sessionActive = sessionStorage.getItem(SESSION_FLAG);
+
+    if (storedToken && storedUser && sessionActive) {
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
@@ -23,7 +28,10 @@ export const AuthProvider = ({ children }) => {
         console.error("Failed to parse stored user data:", e);
         logout();
       }
+    } else {
+      logout();
     }
+
     setAuthLoading(false);
   }, []);
 
@@ -49,15 +57,17 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(currentUser);
 
-      // Store in localStorage for persistence
+      // Store in localStorage and sessionStorage
       localStorage.setItem("jwtToken", newToken);
       localStorage.setItem("user", JSON.stringify(currentUser));
+      sessionStorage.setItem(SESSION_FLAG, "true"); // This won't survive a tab or app restart
 
       if (currentUser.role === "admin") {
         navigate("/ahome");
       } else {
         navigate("/uhome");
       }
+
       return { success: true, message: response.data.message };
     } catch (error) {
       const errMsg =
@@ -73,11 +83,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("user");
+    sessionStorage.removeItem(SESSION_FLAG);
     navigate("/ulogin");
     setGlobalError(null);
   };
 
-  // Expose this setter so InterceptorInitializer can display errors
   const setAppError = (errorMessage) => {
     setGlobalError(errorMessage);
   };
@@ -94,7 +104,7 @@ export const AuthProvider = ({ children }) => {
         isUser: user?.role === "user",
         login,
         logout,
-        setAppError, // Exposed here
+        setAppError,
       }}
     >
       {children}

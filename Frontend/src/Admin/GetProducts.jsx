@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
-import ConfirmationDialog from "../Components/ConfirmationDialog"; // Adjust the path if needed
+import ConfirmationDialog from "../Components/ConfirmationDialog"; // adjust the path as per your folder name case
 
 const GetProducts = ({ showNotification }) => {
   const [products, setProducts] = useState([]);
@@ -11,6 +11,7 @@ const GetProducts = ({ showNotification }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
+  // Load products on mount & when showNotification changes
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -19,11 +20,10 @@ const GetProducts = ({ showNotification }) => {
         const response = await api.get("/admin/products");
         setProducts(response.data);
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch products.");
-        showNotification(
-          err.response?.data?.message || "Failed to fetch products.",
-          "error"
-        );
+        const errMsg =
+          err?.response?.data?.message || "Failed to fetch products.";
+        setError(errMsg);
+        showNotification(errMsg, "error");
       } finally {
         setLoading(false);
       }
@@ -31,38 +31,36 @@ const GetProducts = ({ showNotification }) => {
     fetchProducts();
   }, [showNotification]);
 
-  // Open confirmation dialog and set product for deletion
+  // Handler to open delete confirmation dialog
   const onDeleteClick = (id) => {
     setProductToDelete(id);
     setIsDialogOpen(true);
   };
 
-  // Confirm the deletion
+  // Handler when user confirms deletion
   const handleDeleteConfirmed = async () => {
     if (!productToDelete) return;
     try {
       await api.delete(`/admin/products/${productToDelete}`);
-      setProducts(
-        products.filter((product) => product._id !== productToDelete)
-      );
+      setProducts((prev) => prev.filter((p) => p._id !== productToDelete));
       showNotification("Product deleted successfully!", "success");
-    } catch (error) {
-      showNotification(
-        error.response?.data?.message || "Failed to delete product.",
-        "error"
-      );
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Failed to delete product.";
+      showNotification(errMsg, "error");
     } finally {
       setIsDialogOpen(false);
       setProductToDelete(null);
     }
   };
 
-  // Cancel the deletion dialog
+  // Handler when user cancels deletion
   const handleDeleteCancelled = () => {
     setIsDialogOpen(false);
     setProductToDelete(null);
   };
 
+  // Render loading, error or products UI
   if (loading) {
     return (
       <div className="text-center mt-20 text-white">Loading products...</div>
@@ -75,7 +73,6 @@ const GetProducts = ({ showNotification }) => {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Heading and Add Button */}
       <h2 className="text-3xl font-bold text-white mb-6 text-center">
         Manage Products
       </h2>
@@ -109,7 +106,7 @@ const GetProducts = ({ showNotification }) => {
                 <th className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider max-w-xs">
                   Description
                 </th>
                 <th className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -135,18 +132,23 @@ const GetProducts = ({ showNotification }) => {
                       }
                     />
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200 max-w-[200px] truncate">
                     {product.name}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200 max-w-[140px] truncate">
                     {product.category}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
                     ₹{product.price.toFixed(2)}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200 max-w-xs truncate">
                     {product.description}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     {product.inStock ? (
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -158,6 +160,7 @@ const GetProducts = ({ showNotification }) => {
                       </span>
                     )}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end space-x-4 min-w-[120px]">
                       <Link
@@ -181,7 +184,6 @@ const GetProducts = ({ showNotification }) => {
         </div>
       )}
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={isDialogOpen}
         title="Confirm Delete"

@@ -28,6 +28,7 @@ const EditProduct = ({ showNotification }) => {
     const fetchProduct = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const response = await api.get(`/admin/products/${id}`);
         const product = response.data;
@@ -46,6 +47,7 @@ const EditProduct = ({ showNotification }) => {
         setError(message);
         showNotification(message, "error");
         setLoading(false);
+
         if (err.response?.status === 404 || err.response?.status === 400) {
           navigate("/getproducts");
         }
@@ -220,7 +222,7 @@ const EditProduct = ({ showNotification }) => {
             </label>
             <textarea
               id="description"
-              rows="3"
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="shadow appearance-none border border-gray-700 rounded w-full py-2 px-3 text-gray-300 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
@@ -264,7 +266,7 @@ const EditProduct = ({ showNotification }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full flex items-center justify-center"
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full flex items-center justify-center"
             disabled={submitLoading}
           >
             {submitLoading ? (
@@ -283,7 +285,7 @@ const EditProduct = ({ showNotification }) => {
                 <path
                   className="opacity-75"
                   fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zM6 17.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
             ) : (
