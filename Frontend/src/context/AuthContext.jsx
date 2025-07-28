@@ -1,9 +1,17 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
+
+const TOKEN_KEY = "jwtToken";
+const USER_KEY = "user";
+const SESSION_KEY = "app_session_id";
+
+// Generate unique in-memory session ID on every full reload (not hot reload)
+if (!window.__APP_SESSION_ID__) {
+  window.__APP_SESSION_ID__ = Date.now().toString();
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -12,24 +20,22 @@ export const AuthProvider = ({ children }) => {
   const [globalError, setGlobalError] = useState(null);
   const navigate = useNavigate();
 
-  // In-memory flag to track whether server was restarted
-  const SESSION_FLAG = "session_active";
-
   useEffect(() => {
-    const storedToken = localStorage.getItem("jwtToken");
-    const storedUser = localStorage.getItem("user");
-    const sessionActive = sessionStorage.getItem(SESSION_FLAG);
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedUser = localStorage.getItem(USER_KEY);
+    const storedSession = localStorage.getItem(SESSION_KEY);
+    const currentSession = window.__APP_SESSION_ID__;
 
-    if (storedToken && storedUser && sessionActive) {
+    if (storedToken && storedUser && storedSession === currentSession) {
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse stored user data:", e);
-        logout();
+      } catch (err) {
+        console.error("Invalid stored user data", err);
+        logout(false);
       }
     } else {
-      logout();
+      logout(false); // No navigation on cold load
     }
 
     setAuthLoading(false);
@@ -39,12 +45,13 @@ export const AuthProvider = ({ children }) => {
     setGlobalError(null);
     try {
       let response;
+
       if (userType === "user") {
         response = await api.post("/users/login", { email, password });
       } else if (userType === "admin") {
         response = await api.post("/admin/login", { email, password });
       } else {
-        throw new Error("Invalid user type for login.");
+        throw new Error("Invalid user type");
       }
 
       const {
@@ -57,40 +64,32 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(currentUser);
 
-      // Store in localStorage and sessionStorage
-      localStorage.setItem("jwtToken", newToken);
-      localStorage.setItem("user", JSON.stringify(currentUser));
-      sessionStorage.setItem(SESSION_FLAG, "true"); // This won't survive a tab or app restart
+      localStorage.setItem(TOKEN_KEY, newToken);
+      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+      localStorage.setItem(SESSION_KEY, window.__APP_SESSION_ID__);
 
-      if (currentUser.role === "admin") {
-        navigate("/ahome");
-      } else {
-        navigate("/uhome");
-      }
+      navigate(currentUser.role === "admin" ? "/ahome" : "/uhome");
 
       return { success: true, message: response.data.message };
     } catch (error) {
-      const errMsg =
-        error.response?.data?.message || "Login failed. Please try again.";
-      setGlobalError(errMsg);
-      console.error("Login failed:", errMsg);
-      return { success: false, message: errMsg };
+      const msg = error.response?.data?.message || "Login failed.";
+      setGlobalError(msg);
+      console.error("Login error:", msg);
+      return { success: false, message: msg };
     }
   };
 
-  const logout = () => {
+  const logout = (shouldRedirect = true) => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem("jwtToken");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem(SESSION_FLAG);
-    navigate("/ulogin");
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(SESSION_KEY);
     setGlobalError(null);
+    if (shouldRedirect) navigate("/ulogin");
   };
 
-  const setAppError = (errorMessage) => {
-    setGlobalError(errorMessage);
-  };
+  const setAppError = (message) => setGlobalError(message);
 
   return (
     <AuthContext.Provider
@@ -99,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         token,
         authLoading,
         globalError,
-        isAuthenticated: !!token && !!user,
+        isAuthenticated: !!user && !!token,
         isAdmin: user?.role === "admin",
         isUser: user?.role === "user",
         login,
@@ -114,6 +113,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
