@@ -8,10 +8,12 @@ const TOKEN_KEY = "jwtToken";
 const USER_KEY = "user";
 const SESSION_KEY = "app_session_id";
 
-// Generate unique in-memory session ID on every full reload (not hot reload)
-if (!window.__APP_SESSION_ID__) {
-  window.__APP_SESSION_ID__ = Date.now().toString();
+// Try to get session ID from sessionStorage first (persists in browser reloads)
+if (!sessionStorage.getItem(SESSION_KEY)) {
+  // If not there, generate new and store
+  sessionStorage.setItem(SESSION_KEY, Date.now().toString());
 }
+window.__APP_SESSION_ID__ = sessionStorage.getItem(SESSION_KEY);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -26,6 +28,7 @@ export const AuthProvider = ({ children }) => {
     const storedSession = localStorage.getItem(SESSION_KEY);
     const currentSession = window.__APP_SESSION_ID__;
 
+    // Only log in if sessions match
     if (storedToken && storedUser && storedSession === currentSession) {
       try {
         setToken(storedToken);
@@ -35,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         logout(false);
       }
     } else {
-      logout(false); // No navigation on cold load
+      logout(false); // clear stale session
     }
 
     setAuthLoading(false);
@@ -64,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(currentUser);
 
+      // Save to localStorage for persistence
       localStorage.setItem(TOKEN_KEY, newToken);
       localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
       localStorage.setItem(SESSION_KEY, window.__APP_SESSION_ID__);
