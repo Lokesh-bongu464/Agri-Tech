@@ -55,42 +55,34 @@ Other Libraries: Axios, Moment.js, Helmet, CORS
 
 🚀 Getting Started
 1. Clone the Repository
-bash
-git clone https://github.com/Lokesh-bongu464/Agri-Tech.git
-cd Agri-Tech
+  git clone https://github.com/Lokesh-bongu464/Agri-Tech.git
+  cd Agri-Tech
 2. Install Dependencies
-Backend
-bash
-cd backend
-npm install
-Frontend
-bash
-cd ../frontend
-npm install
+Backend:
+  cd backend
+  npm install
+Frontend:
+  cd ../frontend
+  npm install
 3. Setup Environment Variables
-Backend .env
-
-text
-MONGODB_URI=mongodb://localhost:27017/agritech
-JWT_SECRET=your_jwt_secret
-PORT=7000
-Setup frontend environment/config if needed.
+Backend .env:
+  MONGODB_URI=mongodb://localhost:27017/agritech
+  JWT_SECRET=your_jwt_secret
+  PORT=7000
+  Setup frontend environment/config if needed.
 
 4. Run Development Servers
-Backend
-bash
-cd backend
-npm run dev
-Runs at: http://localhost:7000
+Backend:
+  cd backend
+  npm run dev
+  Runs at: http://localhost:7000
 
-Frontend
-bash
-cd frontend
-npm run dev
-Runs at: http://localhost:5173 (default Vite port)
+Frontend:
+  cd frontend
+  npm run dev
+  Runs at: http://localhost:5173 (default Vite port)
 
 📂 Recommended Folder Structure
-text
 /backend
   /controllers
   /models
@@ -112,3 +104,4 @@ npm run dev – Start development server
 npm run build – Build frontend for production
 
 npm start – Start backend server
+
