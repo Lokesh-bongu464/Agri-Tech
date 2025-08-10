@@ -1,6 +1,6 @@
 🌱 AgriTech – Full-Stack Agriculture Management Platform
 
-Demo App: https://vercel.com/lokesh-bongus-projects/agri-tech
+Demo App: https://agri-tech-chi.vercel.app/
 
 AgriTech is a modern, full-stack agriculture management platform built with Node.js, Express, MongoDB, and React.
 It enables users to manage farms, products, crops, and bookings — with robust user/admin roles and a clean UI/UX.
