@@ -1,55 +1,114 @@
-AgriTech is a modern, full-stack agriculture management platform built with Node.js, Express, MongoDB, and React. It enables users to manage farms, products, crops, and bookings, with robust user/admin roles and clean UI/UX.
+🌱 AgriTech – Full-Stack Agriculture Management Platform
+Demo App: AgriTech Live Demo
 
-Features User and admin authentication
+AgriTech is a modern, full-stack agriculture management platform built with Node.js, Express, MongoDB, and React.
+It enables users to manage farms, products, crops, and bookings — with robust user/admin roles and a clean UI/UX.
 
-User dashboard: manage farms, crops, bookings,products,weather
+✨ Features
+👤 User Features
+Secure user authentication
 
-Admin dashboard: manage products, all users, farms, bookings,weather
+Dashboard to manage:
 
-Add/Edit/Delete products, farms, cropsinfo
+Farms
+
+Crops
+
+Bookings
+
+Products
+
+Weather updates
+
+🛠 Admin Features
+Manage:
+
+All products
+
+All users
+
+All farms
+
+Bookings
+
+Weather info
+
+Add / Edit / Delete products, farms, crop info
 
 Custom dialog confirmations for destructive actions
 
-Responsive UI with React and Tailwind CSS
+💻 General
+Fully Responsive UI with React + Tailwind CSS
 
-RESTful API using Express/MongoDB with secure validation
+RESTful API with validation & security best practices
 
-Tech Stack Frontend: React, Tailwind CSS, Vite
+Role-based authentication with JWT
 
+Smooth UX for both desktop and mobile
+
+🛠 Tech Stack
+Frontend: React, Tailwind CSS, Vite
 Backend: Node.js, Express, Mongoose
-
 Database: MongoDB
+Authentication: JWT, Context API
+Other Libraries: Axios, Moment.js, Helmet, CORS
 
-Auth: JWT, Context API
-
-Other: Axios, Moment.js, Helmet, CORS
-
-Getting Started
-
-Clone the repository bash git clone https://github.com/Lokesh-bongu464/Agri-Tech.git cd Agri-Tech
-Install dependencies Go to both frontend and backend directories and run:
+🚀 Getting Started
+1. Clone the Repository
 bash
+git clone https://github.com/Lokesh-bongu464/Agri-Tech.git
+cd Agri-Tech
+2. Install Dependencies
+Backend
+bash
+cd backend
+npm install
+Frontend
+bash
+cd ../frontend
+npm install
+3. Setup Environment Variables
+Backend .env
 
-For backend
-cd backend npm install
+text
+MONGODB_URI=mongodb://localhost:27017/agritech
+JWT_SECRET=your_jwt_secret
+PORT=7000
+Setup frontend environment/config if needed.
 
-For frontend
-cd ../frontend npm install 3. Setup environment variables Create a .env (or use config.js) files in both backend and frontend folders as needed. For backend, configure at minimum:
+4. Run Development Servers
+Backend
+bash
+cd backend
+npm run dev
+Runs at: http://localhost:7000
 
-text MONGODB_URI=mongodb://localhost:27017/agritech JWT_SECRET=your_jwt_secret PORT=7000
+Frontend
+bash
+cd frontend
+npm run dev
+Runs at: http://localhost:5173 (default Vite port)
 
-Run development servers Backend:
-bash cd backend npm run dev
+📂 Recommended Folder Structure
+text
+/backend
+  /controllers
+  /models
+  /routes
+  /config
+  server.js
 
-Frontend:
+/frontend
+  /src
+    /Components
+    /User
+    /Admin
+    /context
+    /services
+  App.jsx
+🔧 Useful Scripts
+npm run dev – Start development server
 
-bash cd frontend npm run dev Backend runs on http://localhost:7000 by default
-
-Frontend runs on http://localhost:5173 (or as configured by Vite)
-
-Access the App Open your browser and navigate to the frontend dev URL. Register as a user or login as admin.
-Folder Structure (recommended) text /backend /controllers /models /routes /config server.js ... /frontend /src /Components /User /Admin /context /services App.jsx ... ... README.md Useful Scripts npm run dev – Start dev server
-
-npm run build – Build production frontend
+npm run build – Build frontend for production
 
 npm start – Start backend server
